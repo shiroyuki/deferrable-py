@@ -5,7 +5,7 @@ __all__ = ['deferrable']
 
 
 def deferrable(func: Callable):
-    """Make the wrapped callable capable of having deferrable operation"""
+    """Make the wrapped callable capable of having deferred operations"""
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):

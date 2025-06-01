@@ -1,7 +1,9 @@
 # deferrable-py
 
-A lightweight pure Python implementation of Go's "defer"
+A lightweight pure-Python implementation of Go's "defer"
 
+> This is not yet supported `asyncio`
+.
 ## Why it matters?
 
 Suppose that you want to close a file after a chain of operations. Generally, you can do this.
@@ -45,7 +47,77 @@ When the invocation of `func()` completes successfully or ends with error, the d
 
 > Please note that the deferred operation will not alter the returned value of the deferrable callable.
 
-## API
+## Example Use Cases
 
-(TODO Write it here)
+* Flexible cleanup for each test case
+  ```python
+  from unittest import TestCase
+  
+  from deferrable import defer, deferrable
+  
+  def create_obj(id):
+    ...
+  
+  def delete_obj(id):
+    ...
+  
+  class UnitTest(TestCase):
+    @deferrable
+    def test_happy_path(self):
+      o = create_obj('alpha')  # <-- create a test obj
+      defer(lambda: delete_obj('alpha'))  # <-- defer the test obj deletion to the end 
+      ... # <-- the rest of the test
+  ```
+* Handle the data temporarily.
+  ```python
+  from os import unlink
+  from typing import Iterator
+  from deferrable import defer, deferrable
+  
+  def load_blob(url) -> Iterator[bytes]:
+    ...
+  
+  def upload_blob(local_file_path):
+    ...
+  
+  @deferrable
+  def transfer(source_url, destination_url):
+    tmp_file_path = ...
+    with open(tmp_file_path, 'wb') as f:
+      for b in load_blob(source_url):
+        f.write(b)
+    defer(lambda: unlink(tmp_file_path))
+    upload_blob(tmp_file_path)
+  ```
+
+## API Reference
+
+### Decorator `deferrable.deferrable(func: Callable)`
+
+Make the wrapped callable capable of having deferred operations.
+
+The `func` parameter must be callable.
+
+```python
+from deferrable import deferrable
+
+@deferrable
+def func_a():
+    ...
+```
+
+### Function `deferrable.defer(op: Callable[[], None])`
+
+Defer the given operation to be executed at the end of the callable invocation,i.e., on the call exit.
+
+The `op` parameter must be a callable which takes no parameters. Any returning values will be disregarded. 
+
+```python
+from deferrable import deferrable, defer
+
+@deferrable
+def func_a():
+    ...
+    defer(lambda: ...)
+```
 

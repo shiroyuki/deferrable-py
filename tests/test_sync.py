@@ -4,10 +4,11 @@ from functools import partial
 from unittest import TestCase
 
 from deferrable import deferrable, defer
+from deferrable.tools import NotDeferredError
 
 
 class TestUnit(TestCase):
-    def test_defer_on_function(self):
+    def test_defer_on_function__ok(self):
         @deferrable
         def ex_compute_summation(numbers: list[int], result_collection: list[int]):
             """Example Function"""
@@ -42,7 +43,7 @@ class TestUnit(TestCase):
         self.assertNotEqual(seq_1, seq_2)
         self.assertNotEqual(result_1, result_2)
 
-    def test_defer_on_function_multithread(self):
+    def test_defer_on_function_multithread__ok(self):
         @deferrable
         def ex_compute_summation(numbers: list[int], result_collection: list[int]):
             """Example Function"""
@@ -94,7 +95,7 @@ class TestUnit(TestCase):
         # end with
     # end def
 
-    def test_defer_on_instance_method(self):
+    def test_defer_on_instance_method__ok(self):
         class Obj:
             def __init__(self, x):
                 self.x = x
@@ -117,7 +118,7 @@ class TestUnit(TestCase):
         self.assertEqual(obj.x, original_value,
                          'Ensure that the original value is not changed AFTER the deferrable invocation.')
 
-    def test_defer_handle_exception(self):
+    def test_defer_handle_exception__rethrow_error_with_some_deferred_op_used(self):
         deferred_values = []
 
         @deferrable
@@ -125,6 +126,7 @@ class TestUnit(TestCase):
             if seed % 2 == 0:
                 defer(lambda: deferred_values.append(seed))
                 raise ValueError(seed)
+            defer(lambda: deferred_values.append(seed * 2))
             return seed ** 2
 
         # Ensure that the seed is not in the list.
@@ -135,3 +137,11 @@ class TestUnit(TestCase):
             ex_power_odd_by_2(2)
 
         self.assertIn(2, deferred_values)
+        self.assertNotIn(4, deferred_values)
+
+    def test_defer_on_non_deferrable_callable__raise_error(self):
+        def target():
+            defer(lambda: None)
+
+        with self.assertRaises(NotDeferredError):
+            target()
