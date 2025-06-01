@@ -1,0 +1,7 @@
+[project]
+name = "deferrable-py"
+version = "0.1.0"
+description = "A lightweight pure-Python implementation of Go's defer"
+requires-python = ">=3.9"
+dependencies = []
+readme = 'README.md'
