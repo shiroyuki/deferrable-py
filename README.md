@@ -2,8 +2,39 @@
 
 A lightweight pure-Python implementation of Go's "defer"
 
-> This is not yet supported `asyncio`
-.
+## Features
+* The developers can defer operations, dubbed deferred operations.
+  * Only a deferrable **async** callable object can take both sync and async callables as deferred operations. 
+* The deferred operations will be run in the LIFO order.
+
+## Example
+
+Suppose we have a deferrable function.
+
+```python
+from deferrable import defer, deferrable
+
+
+@deferrable
+def do_something():
+    print('in-1')
+    defer(lambda: print('out-1'))
+    print('in-2')
+    defer(lambda: print('out-2'))
+
+do_something()
+```
+
+The output would be:
+
+```
+in-1
+in-2
+out-2
+out-1
+```
+
+
 ## Why it matters?
 
 Suppose that you want to close a file after a chain of operations. Generally, you can do this.
@@ -68,6 +99,7 @@ When the invocation of `func()` completes successfully or ends with error, the d
       defer(lambda: delete_obj('alpha'))  # <-- defer the test obj deletion to the end 
       ... # <-- the rest of the test
   ```
+  > Some test frameworks provide this mechanism. This is all about being framework-agnostic.
 * Handle the data temporarily.
   ```python
   from os import unlink
@@ -104,9 +136,13 @@ from deferrable import deferrable
 @deferrable
 def func_a():
     ...
+
+@deferrable
+async def func_b():
+    ...
 ```
 
-### Function `deferrable.defer(op: Callable[[], None])`
+### Function `deferrable.defer(op: Callable[[], None]|Callable[[], Awaitable[None]])`
 
 Defer the given operation to be executed at the end of the callable invocation,i.e., on the call exit.
 
@@ -119,5 +155,11 @@ from deferrable import deferrable, defer
 def func_a():
     ...
     defer(lambda: ...)
+
+@deferrable
+def func_b():
+    ...
+    defer(lambda: ...)  # A normal function can be used as a deferred operation.
+    defer(lambda: ...)  # A normal function can be used as a deferred operation.
 ```
 
