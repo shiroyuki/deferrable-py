@@ -2,6 +2,22 @@
 name = "deferrable-py"
 version = "0.1.0"
 description = "A lightweight pure-Python implementation of Go's defer"
+authors = [
+    {name = "Juti Noppornpitak", email = "juti_n@yahoo.co.jp"}
+]
 requires-python = ">=3.9"
 dependencies = []
 readme = 'README.md'
+license = 'Apache-2.0'
+license-files = ["LICEN[CS]E"]
+
+[project.optional-dependencies]
+build = ["setuptools"]
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["deferrable"]
+exclude = ["tests"]
