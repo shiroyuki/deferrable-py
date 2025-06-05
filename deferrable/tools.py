@@ -1,5 +1,5 @@
 from inspect import stack
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, Union
 
 __all__ = ['defer', 'NotDeferredError']
 
@@ -8,7 +8,7 @@ class NotDeferredError(RuntimeError):
     pass
 
 
-def defer(op: Callable[[], None]|Callable[[], Awaitable[None]]):
+def defer(op: Union[Callable[[], None], Callable[[], Awaitable[None]]]):
     """ Defer the given operation to be executed at the end of the callable invocation,i.e., on the call exit. """
     call_stacks = stack()
     for call in call_stacks:
