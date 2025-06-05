@@ -2,10 +2,10 @@ name: Package Release
 on:
   push:
     branches:
-      - release
+      - main # Later, we would like to change this to "release".
   pull_request:
     branches:
-      - release
+      - main # Later, we would like to change this to "release".
 
 jobs:
   build:
