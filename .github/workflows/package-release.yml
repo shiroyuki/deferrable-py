@@ -47,11 +47,11 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: testpypi
+      name: pypi
       url: https://test.pypi.org/p/deferrable-py
 
     permissions:
-      id-token: ${{ pypi }}
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:
       - name: Download all the dists
