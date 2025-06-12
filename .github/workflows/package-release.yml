@@ -1,11 +1,7 @@
 name: Package Release
 on:
-  push:
-    branches:
-      - main # Later, we would like to change this to "release".
-  pull_request:
-    branches:
-      - main # Later, we would like to change this to "release".
+  release:
+    types: [created]
 
 jobs:
   build:
